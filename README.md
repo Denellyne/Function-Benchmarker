@@ -14,8 +14,9 @@ Measure Units:
 
     1 - Seconds
     2 - Milliseconds
-    3 - Nanoseconds
-    4 - Microseconds (Default)
+    3 - Microseconds 
+    4 - Nanoseconds (Default)
+    
 
 ## Data saved
 
