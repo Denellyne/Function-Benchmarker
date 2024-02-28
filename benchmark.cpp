@@ -1,49 +1,49 @@
 #include "benchmark.h"
 #include <fstream>
+#include <format>
 
-int maxTime = 0;
-std::vector<int> timePerCall{};
-std::string units;
+std::vector<Timer> timers; 
 
-BOOL WINAPI writeDataOnExit(_In_ DWORD dwCtrlType) {
-
-    saveOnExit();
-
-    _exit(NULL);
-    return TRUE;
+Timer* runStandardBenchmark(int ratio, std::string functionName){
+    Timer benchmark(ratio,functionName);
+    timers.push_back(benchmark);
+    return &timers[timers.size()-1];
 }
 
-void setupBenchmark() {
+inline void writeBenchmark(const Timer& benchmark);
 
-    SetProcessShutdownParameters(2, 0);
-    SetConsoleCtrlHandler(writeDataOnExit, TRUE);
+void saveOnExit(){
+    for(unsigned long long int  i = 0;i < timers.size();i++) 
+        writeBenchmark(timers[i]);
 }
 
-extern void saveOnExit() {
+inline void writeBenchmark(const Timer& benchmark) {
     //The reason we do it here instead of when we are pushing the data to the vector
     //is so we minimize the bloat inside our Timer Class
-    if (timePerCall.size() == 0) return;
+    if (benchmark.timePerCall.size() == 0) return;
 
     unsigned long long int sumOfCallTimes = 0;
 
-    for (int i = 1; i < timePerCall.size(); i++)
-        sumOfCallTimes += timePerCall[i];
+    for (unsigned long long int i = 1; i < benchmark.timePerCall.size() - 1; i++)
+        sumOfCallTimes += benchmark.timePerCall[i];
 
-    std::ofstream saveData("benchmark.txt");
+    std::ofstream saveData(std::format("{}.md",benchmark.textFileName),std::fstream::out);
     if (saveData.is_open()) {
 
-        saveData << "Average call time: " << sumOfCallTimes / timePerCall.size() << units <<'\n';
-        saveData << "Calls to function: " << timePerCall.size() << '\n';
+        saveData << std::format("#Function: {}\n\n",benchmark.textFileName);
+        saveData << "## Average call time: " << sumOfCallTimes / benchmark.timePerCall.size() << benchmark.units << '\n' << '\n';
+        saveData << "## Calls to function: " << benchmark.timePerCall.size() << '\n' << '\n';
 
-        for (int i = 1; i < timePerCall.size(); i++)
-            saveData << timePerCall[i] << units << '\n';
+        for (unsigned long long int i = 0; i < benchmark.timePerCall.size(); i++)
+            saveData << benchmark.timePerCall[i] << benchmark.units << '\n' << '\n';
 
         saveData.close();
     }
 }
 
-Timer::Timer(int ratio){
+Timer::Timer(int ratio,std::string functionName){
     timeMeasure = ratio;
+    textFileName = functionName;
 
     switch (ratio) {
     case 1: units = " s"; break;
@@ -57,9 +57,11 @@ Timer::Timer(int ratio){
         break;
     }
 
-    m_StartTimepoint = std::chrono::high_resolution_clock::now();
 }
 
+void Timer::Start(){
+    m_StartTimepoint = std::chrono::high_resolution_clock::now();
+}
 void Timer::Stop() {
     auto endTimePoint = std::chrono::high_resolution_clock::now();
 
@@ -81,16 +83,16 @@ void Timer::Stop() {
     }
 
 
-    //Delete this if you don't want to see the time spent In Real Time and for more accurate results
-    
-    //The first time this class is constructed the latency is really high so we ignore the first result
-
+ 
+   //The first time this class is constructed the latency is really high so we ignore the first result
+#ifdef DEBUGPRINT
     if (duration > maxTime && timePerCall.size() != 0) maxTime = duration;
-
-    timePerCall.push_back(duration); // Dont delete this one
    
     DEBUG(duration << units);
     DEBUG("Max time spent in 1 call: " << maxTime << units);
     Sleep(1); //Sleep before clearing so you can see it
     system("cls");
+#endif
+    timePerCall.push_back(duration);
+
 }
