@@ -2,25 +2,18 @@
 
 ## How to use
 
-Call setupBenchmark() at the start of your main function and
-writeDataOnExit() at the end
+Call setupBenchmark(TimeMeasure,FunctionName) at the start of your main function
 
-To benchmark the actual function just create an instance of the class
-Timer like so:
-    
-    Timer benchmark(measureUnits);
+If you wish to see the calls times In-Real-Time,uncomment #define DEBUGPRINT inside benchmark.h
 
-Measure Units:
+### Benchmarking a function  
 
-    1 - Seconds
-    2 - Milliseconds
-    3 - Microseconds 
-    4 - Nanoseconds (Default)
-    
+Inside your function call do, 
+Timer->Start(), at the start,and Timer->Stop() at the end of your function
 
 ## Data saved
 
-It saves your average call duration, amount of calls and each call time
+It saves your average call duration, amount of calls and each call time in a Markdown file
 
 ## Display call time In-Real-Time
 
