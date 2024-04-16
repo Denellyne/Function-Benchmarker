@@ -1,44 +1,22 @@
 #pragma once
-#include <windows.h>
 #include <chrono>
 #include <vector>
-#include <iostream>
-//#define DEBUGPRINT
+#include <string>
 
-#define DEBUG(x) do { std::cout << x << '\n'; } while (0)
-
-void saveOnExit();
-/*
-If you wish to write all your data to a text file then call this function in the beggining of the main function
-
-If you wish to Print the call times In-Real-Time then uncomment the #define DEBUGPRINT on benchmark.h
-Beware this might make call latency higher
-
-If you already have a Close App Callback function then you can call saveOnExit there.
-*/
-#define setupBenchmark atexit(saveOnExit);
-
-
-/*
-    If you get a very high maxTime right after starting the program then do a Sleep(5000)
-    in your main function right before the function you want to benchmark
-    so your other threads have time to finish their work
-*/
-
+#define SECONDS 1
+#define MILLISECONDS 2
+#define MICROSECONDS 3
+#define NANOSECONDS 4
 
 class Timer {
 public:
 
     Timer() = delete;
     
-    Timer(int ratio,std::string functionName);
+    Timer(int ratio,std::string functionName,size_t iterations);
 
     void Start();
     void Stop();
-
-    ~Timer() {
-        Stop();
-    }
 
     std::string units;
     std::vector<unsigned long long int> timePerCall{};
@@ -52,15 +30,31 @@ private:
 
 };
 
+void writeBenchmark(const Timer& benchmark);
 
 
 
-/// @brief Do Timer->Start() at the start of the Function and Timer->Stop() at the end of the function to benchmark
+/// @brief Makes x iterations of the function and writes all call times to a .md file
 /// @param ratio 
 ///    1 -> Seconds,
 ///    2 -> Milliseconds,
 ///    3 -> Microseconds,
 ///    4 -> Nanoseconds,
 /// @param functionName  Function Name -> Name for the resulting textfile
-/// @return Returns a pointer to a Timer Object
-Timer* runStandardBenchmark(int ratio,std::string functionName);
+/// @param Iterations Number of iterations
+/// @param Function The function you wish to benchmark
+template <typename Ratio,typename FunctionName,typename Iterations,typename Function, class ... Args>
+auto runStandardBenchmark(const Ratio ratio,const FunctionName functionName,Iterations iterations,const Function f,const Args...args){
+    Timer benchmark(ratio,functionName,iterations);
+
+    while(iterations-- > 0){
+        benchmark.Start();
+        f(args...);
+        benchmark.Stop();
+    }
+
+    writeBenchmark(benchmark);
+}
+
+
+

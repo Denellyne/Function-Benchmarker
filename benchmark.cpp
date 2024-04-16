@@ -2,22 +2,7 @@
 #include <fstream>
 #include <format>
 
-std::vector<Timer> timers; 
-
-Timer* runStandardBenchmark(int ratio, std::string functionName){
-    Timer benchmark(ratio,functionName);
-    timers.push_back(benchmark);
-    return &timers[timers.size()-1];
-}
-
-inline void writeBenchmark(const Timer& benchmark);
-
-void saveOnExit(){
-    for(unsigned long long int  i = 0;i < timers.size();i++) 
-        writeBenchmark(timers[i]);
-}
-
-inline void writeBenchmark(const Timer& benchmark) {
+void writeBenchmark(const Timer& benchmark) {
     //The reason we do it here instead of when we are pushing the data to the vector
     //is so we minimize the bloat inside our Timer Class
     if (benchmark.timePerCall.size() == 0) return;
@@ -41,21 +26,22 @@ inline void writeBenchmark(const Timer& benchmark) {
     }
 }
 
-Timer::Timer(int ratio,std::string functionName){
-    timeMeasure = ratio;
-    textFileName = functionName;
+Timer::Timer(int ratio,std::string functionName,size_t iterations)
+: timeMeasure(ratio),textFileName(functionName){
 
     switch (ratio) {
-    case 1: units = " s"; break;
-    case 2: units = " ms"; break;
-    case 3: units = " us"; break;
-    case 4: units = " ns"; break;
+    case SECONDS: units = " s"; break;
+    case MILLISECONDS: units = " ms"; break;
+    case MICROSECONDS: units = " us"; break;
+    case NANOSECONDS: units = " ns"; break;
 
     default:
         timeMeasure = 4;
         units = " ns";
         break;
     }
+
+    timePerCall.reserve(iterations+1);
 
 }
 
@@ -68,7 +54,7 @@ void Timer::Stop() {
     auto start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartTimepoint).time_since_epoch().count();
     auto end = std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimePoint).time_since_epoch().count();
 
-    int duration = end - start;
+    unsigned long long duration = end - start;
 
     switch (timeMeasure) {
     case 1:
@@ -82,10 +68,15 @@ void Timer::Stop() {
         break;
     }
 
+    timePerCall.push_back(duration);
 
  
    //The first time this class is constructed the latency is really high so we ignore the first result
 #ifdef DEBUGPRINT
+#include <iostream>
+
+#define DEBUG(x) do { std::cout << x << '\n'; } while (0)
+
     if (duration > maxTime && timePerCall.size() != 0) maxTime = duration;
    
     DEBUG(duration << units);
@@ -93,6 +84,5 @@ void Timer::Stop() {
     Sleep(1); //Sleep before clearing so you can see it
     system("cls");
 #endif
-    timePerCall.push_back(duration);
 
 }
