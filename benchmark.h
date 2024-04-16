@@ -44,7 +44,7 @@ void writeBenchmark(const Timer& benchmark);
 /// @param Iterations Number of iterations
 /// @param Function The function you wish to benchmark
 template <typename Ratio,typename FunctionName,typename Iterations,typename Function, class ... Args>
-auto runStandardBenchmark(const Ratio ratio,const FunctionName functionName,Iterations iterations,const Function f,const Args...args){
+auto runStandardBenchmark(const Ratio ratio,const FunctionName functionName,Iterations iterations,const Function f,Args...args){
     Timer benchmark(ratio,functionName,iterations);
 
     while(iterations-- > 0){
