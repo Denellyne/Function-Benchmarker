@@ -2,14 +2,12 @@
 
 ## How to use
 
-Call setupBenchmark(TimeMeasure,FunctionName) at the start of your main function
+Call runStandardBenchmark,this function takes as argument: 
 
-If you wish to see the calls times In-Real-Time,uncomment #define DEBUGPRINT inside benchmark.h
-
-### Benchmarking a function  
-
-Inside your function call do, 
-Timer->Start(), at the start,and Timer->Stop() at the end of your function
+    a time measure unit ;
+    the Saved File Name;
+    the function you wish to benchmark;
+    the function arguments.
 
 ## Data saved
 
