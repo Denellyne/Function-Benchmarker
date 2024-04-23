@@ -13,7 +13,6 @@ namespace Benchmark{
 
     #define U128 unsigned long long
 
-
     class Timer {
     public:
 
@@ -35,7 +34,7 @@ namespace Benchmark{
 
         void writeBenchmark();
 
-        std::chrono::time_point< std::chrono::high_resolution_clock> m_StartTimepoint;
+        std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimepoint;
         unsigned short int timeMeasure = 4;
         U128 maxTime = 0;
         float multiplier = 1;
