@@ -63,11 +63,14 @@ void Timer::Stop() {
 #define DEBUG(x) do { std::cout << x << '\n'; } while (0)
 
     if (duration > maxTime && timePerCall.size() != 0) maxTime = duration;
-   
-    DEBUG(duration << units);
-    DEBUG("Max time spent in 1 call: " << maxTime << units);
     std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Sleep before clearing so you can see it
     system("cls");
+   
+    DEBUG(textFileName);
+    DEBUG("Iteration " << timePerCall.size());
+    DEBUG(duration << units);
+    DEBUG("Max time spent in 1 call: " << maxTime << units);
+    
 
 }
 #else
