@@ -43,6 +43,10 @@ Timer::~Timer(){
 void Timer::Start(){
     m_StartTimepoint = std::chrono::high_resolution_clock::now();
 }
+
+#ifdef DEBUGPRINT
+#include <thread>
+#include <iostream>
 void Timer::Stop() {
     const auto endTimePoint = std::chrono::high_resolution_clock::now();
 
@@ -52,11 +56,9 @@ void Timer::Stop() {
     unsigned long long duration = (end - start)*multiplier;
 
     timePerCall.push_back(duration);
-
  
    //The first time this class is constructed the latency is really high so we ignore the first result
-#ifdef DEBUGPRINT
-#include <iostream>
+
 
 #define DEBUG(x) do { std::cout << x << '\n'; } while (0)
 
@@ -64,8 +66,22 @@ void Timer::Stop() {
    
     DEBUG(duration << units);
     DEBUG("Max time spent in 1 call: " << maxTime << units);
-    Sleep(1); //Sleep before clearing so you can see it
+    std::this_thread::sleep_for(std::chrono::milliseconds(1)); //Sleep before clearing so you can see it
     system("cls");
-#endif
 
 }
+#else
+void Timer::Stop() {
+    const auto endTimePoint = std::chrono::high_resolution_clock::now();
+
+    auto start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_StartTimepoint).time_since_epoch().count();
+    auto end = std::chrono::time_point_cast<std::chrono::nanoseconds>(endTimePoint).time_since_epoch().count();
+
+    unsigned long long duration = (end - start)*multiplier;
+
+    timePerCall.push_back(duration);
+ 
+   //The first time this class is constructed the latency is really high so we ignore the first result
+
+}
+#endif
