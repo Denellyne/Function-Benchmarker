@@ -47,7 +47,7 @@ private:
 template <typename Ratio,typename FunctionName,typename Iterations,typename Function, class ... Args>
 void runStandardBenchmark(const Ratio ratio,const FunctionName functionName,Iterations iterations,const Function f,Args...args){
     Timer benchmark(ratio,functionName,iterations);
-    unsigned iter = iterations;
+    
     while(iterations-- > 0){
         benchmark.Start();
         f(args...);
