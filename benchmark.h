@@ -49,7 +49,7 @@ void runStandardBenchmark(const Ratio ratio,const FunctionName functionName,Iter
     Timer benchmark(ratio,functionName,iterations);
     unsigned iter = iterations;
     while(iterations-- > 0){
-        if(iterations%10 == 0) printf("Iteration: %d\n",iter-iterations);
+        if(iterations%10 == 0) printf("%s iteration: %d\n",functionName,iter-iterations);
         benchmark.Start();
         f(args...);
         benchmark.Stop();
